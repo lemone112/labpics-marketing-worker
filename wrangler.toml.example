@@ -1,0 +1,16 @@
+name = "labpics-marketing-worker"
+main = "src/index.ts"
+compatibility_date = "2026-02-19"
+
+# Optional (recommended) storage for cooldown/idempotency
+# d1_databases = [
+#   { binding = "DB", database_name = "labpics_marketing", database_id = "<fill>" }
+# ]
+
+[vars]
+LOOPS_EVENT_NAME = "lead_new_prospect_ui_audit_v1"
+DEFAULT_TEST_EMAIL = "ceo@lab.pics"
+
+# Put secrets via:
+# wrangler secret put LOOPS_API_KEY
+# wrangler secret put ATTIO_API_KEY
