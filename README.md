@@ -8,42 +8,36 @@ It is designed to:
 - upsert contacts into Loops Audience
 - trigger Loops event-based Loops (workflows) for sending emails
 
-## Why a Worker?
-Cloudflare Workers are enough for this service because it is mostly:
-- HTTP endpoints
-- scheduled jobs
-- small fan-out API calls
-- simple persistence for idempotency/cooldowns (D1/KV)
+> This repo deploys to Cloudflare Workers via GitHub Actions + Wrangler.
 
-## Quickstart
+## Quickstart (local)
 
-### 1) Install
 ```bash
 npm i
-```
-
-### 2) Configure
-Copy `wrangler.toml.example` to `wrangler.toml` and set your bindings.
-
-### 3) Dev
-```bash
+cp wrangler.toml.example wrangler.toml # optional, but repo already includes wrangler.toml
 npm run dev
 ```
 
-### 4) Deploy
-```bash
-npm run deploy
-```
+## Deploy (GitHub Actions → Cloudflare Workers)
 
-## Endpoints
+### 1) Add GitHub Actions secrets
+Go to: **GitHub repo → Settings → Secrets and variables → Actions → New repository secret**
 
-- `POST /send/test` — sends a test Loops event to a specified email (defaults to `ceo@lab.pics`).
-- `POST /jobs/attio/prospects` — stub job: would pull prospects from Attio and trigger Loops events.
-
-## Environment / Secrets
-Set these via `wrangler secret put ...`:
+Required:
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
 - `LOOPS_API_KEY`
+
+Optional (only if you implement Attio pulls):
 - `ATTIO_API_KEY`
 
+### 2) Push to main
+Any push to `main` triggers deployment.
+
+### 3) Endpoints
+- `GET /health`
+- `POST /send/test` (JSON: `{ "email": "ceo@lab.pics" }`)
+
 ## Notes
-This repo intentionally avoids sending emails directly. Sending is done by Loops Loops (event-based) so replies, unsubscribes, and deliverability are handled there.
+- Do NOT commit secrets to git.
+- This repo intentionally does not send emails directly. Sending is done by Loops Loops (event-based) so replies, unsubscribes, and deliverability are handled there.

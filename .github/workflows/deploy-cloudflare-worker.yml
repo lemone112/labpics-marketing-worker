@@ -1,0 +1,38 @@
+name: Deploy Cloudflare Worker
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-worker-main
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          LOOPS_API_KEY: ${{ secrets.LOOPS_API_KEY }}
+          ATTIO_API_KEY: ${{ secrets.ATTIO_API_KEY }}
+        run: |
+          npx wrangler --version
+          # Secrets must already exist in the Worker environment OR be provided at deploy-time.
+          # We pass LOOPS_API_KEY/ATTIO_API_KEY as env vars so the Worker can read them.
+          npx wrangler deploy
